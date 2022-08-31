@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<!-- <script src="../lib/jquery-3.1.1.min.js"></script> -->
+<script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.slim.min.js"></script>
+
+<body>
+    <div id="parentBox">我是tp</div>
+</body>
+
+<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<script type="text/javascript">
+    $(function () {
+        function generateUUID() {
+            var d = new Date().getTime();
+            if (window.performance && typeof window.performance.now === "function") {
+                d += performance.now(); //use high-precision timer if available
+            }
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        }
+        function _ip2int(ip) {
+            var num = 0;
+            if (ip == "") {
+                return num;
+            }
+            var aNum = ip.split(".");
+            if (aNum.length != 4) {
+                return num;
+            }
+            num += parseInt(aNum[0]) << 24;
+            num += parseInt(aNum[1]) << 16;
+            num += parseInt(aNum[2]) << 8;
+            num += parseInt(aNum[3]) << 0;
+            num = num >>> 0;//这个很关键，不然可能会出现负数的情况
+            return num;
+        }
+
+        function vote(params) {
+            // step++;
+            // console.log(`投了 ${step} 票`, params.cip)
+            // return
+            $.post("http://4g.jxxw.com.cn/index.php?c=vote_m&m=saveVoteNew", params, function (result) {
+                step++;
+                console.log(`投了 ${step} 票`)
+            });
+        }
+
+        let step = 0;
+        let _cip = '123.127.0.0';
+        let ipContainer = []; //['123.127.0.0' --- '123.127.50.20']  i = 0-50/ j = 0-20       总计1000
+        //['123.127.50.20' --- '123.127.250.20'] i = 50-250/ j = 0-20   总计4000
+
+        // 2022/8/30 9:08
+        //['123.127.0.0' --- '123.127.250.20'] i = 0-250/ j = 0-20   总计5000
+
+        function generateIp(initIp) {  
+            let aNum = initIp.split(".");
+            for (var i = 0; i < 250; i++) {
+                aNum[2] = i;
+                for (var j = 0; j < 20; j++) {
+                    aNum[3] = j
+                    ipContainer.push(aNum.join("."))
+                }
+            }
+        }
+        // generateIp(_cip)
+
+        let params = {
+            multi: '0',
+            voteId: '480',
+            itemId: '1100312314',
+            uid: 'e87bb8d5 - b599 - 4d15- aafe - 4df4071b63cd',
+            uuid: 'e87bb8d5 - b599 - 4d15 - aafe - 4df4071b63cd',
+            username: 'e87bb8d5 - b599 - 4d15 - aafe - 4df4071b63cd',
+            name: 'e87bb8d5 - b599 - 4d15 - aafe - 4df4071b63cd',
+            sign: '',
+            ip: '',
+            pc: '',
+            platform: 1,
+            // cip: '123.127.19.122',
+            cip: _cip,
+            cname: 'CHINA',
+            ccip: _ip2int(_cip)
+        }
+
+        /* for (var i = 200; i < 300; i++) {
+            params.cip = ipContainer[i]
+            params.ccip = _ip2int(params.cip)
+            for (var j = 0; j < 5; j++) {
+                vote(params)
+            }
+        } */
+
+        /* let init = 0;
+        let timer = setInterval(() => {  // 每两秒 请求100个 
+            for (var i = 0; i < 20; i++) {
+                params.cip = ipContainer[i + init]
+                params.ccip = _ip2int(params.cip)
+                params.uid = generateUUID();
+                params.uuid = params.uid;
+                params.username = params.uid;
+                params.name = params.uid;
+                for (var j = 0; j < 5; j++) {
+                    vote(params)
+                }
+            }
+            init += 20
+            if (init >= 5000) {   //  250次 * 100个/次
+                clearInterval(timer)
+            }
+        }, 2000) */
+
+        params.cip = returnCitySN['cip']
+        params.ccip = _ip2int(params.cip)
+        for (var j = 0; j < 5; j++) {
+            params.uid = generateUUID();
+            params.uuid = params.uid;
+            params.username = params.uid;
+            params.name = params.uid;
+            vote(params)
+        }
+    })
+</script>
+
+</html>
